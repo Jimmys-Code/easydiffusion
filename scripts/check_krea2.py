@@ -17,12 +17,13 @@ def main():
     parser.add_argument("--lora", action="append")
     parser.add_argument("--seed", type=int, default=1234)
     parser.add_argument("--preview", action="store_true")
+    parser.add_argument("--count", type=int, default=1)
     parser.add_argument("--output", default="krea2-check.png")
     args = parser.parse_args()
 
     request = {
         "prompt": "A red fox in a snowy forest, watercolor illustration",
-        "seed": args.seed, "width": 512, "height": 512, "num_outputs": 1,
+        "seed": args.seed, "width": 512, "height": 512, "num_outputs": args.count,
         "num_inference_steps": 8, "guidance_scale": 1, "sampler_name": "euler",
         "scheduler_name": "simple", "use_stable_diffusion_model": args.model,
         "session_id": "krea2-check", "output_format": "png", "stream_image_progress": args.preview,
@@ -62,6 +63,7 @@ def main():
                 if event.get("status") == "failed":
                     raise RuntimeError(event.get("detail", event))
                 if event.get("status") == "succeeded":
+                    assert len(event["output"]) == args.count, len(event["output"])
                     data = base64.b64decode(event["output"][0]["data"].split(",", 1)[-1])
                     image = Image.open(io.BytesIO(data))
                     assert image.size == (512, 512), image.size
