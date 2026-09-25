@@ -46,6 +46,18 @@ If Windows SmartScreen prevents you from running the program click `More info` a
 2. Open a terminal window, and navigate to the `easy-diffusion` directory.
 3. Run `./start.sh` (or `bash start.sh`) in a terminal.
 
+## Krea 2
+
+This fork can run Krea 2 Raw and Turbo safetensors through a current ComfyUI installation. Install the public Turbo INT8 model, Qwen3-VL text encoder, Qwen Image VAE, and the official style LoRAs with:
+
+```sh
+python scripts/install_krea2.py --models-dir /path/to/ComfyUI/models
+```
+
+Use `--loras darkbrush dotmatrix` to install a smaller selection, or `--variant turbo-nvfp4` for the smaller Turbo model. The installer resumes interrupted downloads and verifies each file against Hugging Face's SHA-256.
+
+In Easy Diffusion settings, set **Models Folder** to the same ComfyUI `models` folder, choose **Krea 2 (ComfyUI)** as the engine, and set **ComfyUI folder** to the installation containing `.venv`. Save and restart. If ComfyUI is already running, leave its folder blank and set **ComfyUI URL** to its API address; start it with `--preview-method auto` for live image previews. Pick a Krea 2 model from the model dropdown, then select any installed LoRAs in the normal LoRA control. Turbo uses 8 steps and CFG 1 by default; Raw uses 52 steps and CFG 3.5. Turbo ignores the negative prompt at CFG 1, as in Krea's recommended workflow. Krea 2 supports text-to-image generation here, including multiple LoRAs, batch requests, progress previews, and Easy Diffusion's image filters.
+
 # To remove/uninstall:
 Just delete the `EasyDiffusion` folder to uninstall all the downloaded packages.
 

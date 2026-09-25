@@ -261,9 +261,26 @@ var PARAMETERS = [
         options: [
             { value: "sdkit3", label: "v4 (very experimental)" },
             { value: "webui", label: "v3.5" },
+            { value: "krea2", label: "Krea 2 (ComfyUI)" },
             { value: "ed_diffusers", label: "v3.0" },
             { value: "ed_classic", label: "v2.0" },
         ],
+    },
+    {
+        id: "comfyui_dir",
+        type: ParameterType.custom,
+        label: "ComfyUI folder",
+        note: "Optional: start ComfyUI with its .venv when Krea 2 is selected. Restart after changing this.",
+        saveInAppConfig: true,
+        render: (parameter) => `<input id="${parameter.id}" name="${parameter.id}" size="30">`,
+    },
+    {
+        id: "comfyui_url",
+        type: ParameterType.custom,
+        label: "ComfyUI URL",
+        note: "Address of the ComfyUI API used by Krea 2. Restart after changing this.",
+        saveInAppConfig: true,
+        render: (parameter) => `<input id="${parameter.id}" name="${parameter.id}" size="30">`,
     },
     {
         id: "backend_platform",
@@ -453,6 +470,8 @@ let uiOpenBrowserOnStartField = document.querySelector("#ui_open_browser_on_star
 let confirmDangerousActionsField = document.querySelector("#confirm_dangerous_actions")
 let testDiffusers = document.querySelector("#use_v3_engine")
 let backendEngine = document.querySelector("#backend")
+let comfyuiDirField = document.querySelector("#comfyui_dir")
+let comfyuiUrlField = document.querySelector("#comfyui_url")
 let backendPlatformField = document.querySelector("#backend_platform")
 let profileNameField = document.querySelector("#profileName")
 let modelsDirField = document.querySelector("#models_dir")
@@ -522,6 +541,8 @@ async function getAppConfig() {
         }
         testDiffusers.checked = testDiffusersEnabled
         backendEngine.value = config.backend
+        comfyuiDirField.value = config.backend_config?.comfyui_dir || ""
+        comfyuiUrlField.value = config.backend_config?.comfyui_url || "http://127.0.0.1:8188"
         document.querySelector("#test_diffusers").checked = testDiffusers.checked // don't break plugins
         document.querySelector("#use_v3_engine").checked = testDiffusers.checked // don't break plugins
 
@@ -541,6 +562,8 @@ async function getAppConfig() {
 
         if (config.backend === "ed_classic") {
             IMAGE_STEP_SIZE = 64
+        } else if (config.backend === "krea2") {
+            IMAGE_STEP_SIZE = 16
         } else {
             IMAGE_STEP_SIZE = 8
         }
@@ -549,6 +572,11 @@ async function getAppConfig() {
         customHeightField.step = IMAGE_STEP_SIZE
 
         const currentBackendKey = "backend_" + config.backend
+
+        for (const id of ["comfyui_dir", "comfyui_url"]) {
+            const entry = getParameterSettingsEntry(id)
+            entry.style.display = config.backend === "krea2" ? getDefaultDisplay(entry) : "none"
+        }
 
         document.querySelectorAll('.gated-feature').forEach((element) => {
             const featureKeys = element.getAttribute('data-feature-keys').split(' ')
@@ -559,6 +587,21 @@ async function getAppConfig() {
                 element.style.display = 'none'
             }
         });
+
+        if (config.backend === "krea2") {
+            const options = {
+                sampler_name: new Set(["ddim", "heun", "euler", "euler_a", "dpm2", "dpmpp_2s_a", "dpmpp_2m"]),
+                scheduler_name: new Set(["automatic", "uniform", "karras", "exponential", "sgm_uniform", "simple"]),
+            }
+            for (const [id, allowed] of Object.entries(options)) {
+                for (const option of document.querySelector(`#${id}`).options) {
+                    if (!allowed.has(option.value)) {
+                        option.hidden = true
+                        option.disabled = true
+                    }
+                }
+            }
+        }
 
         if (config.force_save_metadata) {
             metadataOutputFormatField.value = config.force_save_metadata

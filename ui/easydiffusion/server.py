@@ -70,6 +70,8 @@ class SetAppConfigRequest(BaseModel, extra=Extra.allow):
     listen_port: int = None
     use_v3_engine: bool = True
     backend: str = "ed_diffusers"
+    comfyui_dir: str = None
+    comfyui_url: str = None
     backend_platform: str = "auto"
     models_dir: str = None
     vram_usage_level: str = "balanced"
@@ -193,6 +195,13 @@ def set_app_config_internal(req: SetAppConfigRequest):
     config["vram_usage_level"] = req.vram_usage_level
 
     config["backend_config"] = config.get("backend_config") or {}
+    for key in ("comfyui_dir", "comfyui_url"):
+        value = getattr(req, key)
+        if value is not None:
+            if value.strip():
+                config["backend_config"][key] = value.strip()
+            else:
+                config["backend_config"].pop(key, None)
     config["backend_config"]["platform"] = None
     if req.backend_platform == "auto":
         del config["backend_config"]["platform"]

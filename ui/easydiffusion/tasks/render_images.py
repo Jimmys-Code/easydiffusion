@@ -232,7 +232,8 @@ def generate_images_internal(
 
     callback = make_step_callback(context, req, task_data, data_queue, task_temp_images, step_callback)
 
-    req.width, req.height = map(lambda x: x - x % 8, (req.width, req.height))  # clamp to 8
+    size_multiple = getattr(backend, "image_size_multiple", 8)
+    req.width, req.height = map(lambda x: x - x % size_multiple, (req.width, req.height))
 
     if req.control_image and task_data.control_filter_to_apply:
         req.controlnet_filter = task_data.control_filter_to_apply

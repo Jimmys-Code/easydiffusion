@@ -4,5 +4,8 @@ installer.tar
 dist
 .idea/*
 node_modules/*
+config.yaml
+bucket/
+models/
 .tmp1
 .tmp2

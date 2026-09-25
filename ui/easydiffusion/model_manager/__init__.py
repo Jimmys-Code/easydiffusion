@@ -64,6 +64,7 @@ ALTERNATE_FOLDER_NAMES = {  # for WebUI compatibility
     "controlnet": "ControlNet",
     "text-encoder": "text_encoder",
 }
+COMFY_FOLDER_NAMES = {"stable-diffusion": "diffusion_models", "lora": "loras", "text-encoder": "text_encoders"}
 
 known_models = {}
 
@@ -71,7 +72,8 @@ known_models = {}
 def init():
     make_model_folders()
     migrate_legacy_model_location()  # if necessary
-    download_default_models_if_necessary()
+    if app.getConfig().get("backend") != "krea2":
+        download_default_models_if_necessary()
 
 
 def load_default_models(context: Context):
@@ -400,5 +402,11 @@ def get_model_dirs(model_type: str, base_dir=None):
         alt_dir = os.path.join(base_dir, alt_dir)
         if os.path.exists(alt_dir) and os.path.isdir(alt_dir):
             dirs.append(alt_dir)
+
+    comfy_name = COMFY_FOLDER_NAMES.get(model_type)
+    if comfy_name:
+        comfy_dir = os.path.join(base_dir, comfy_name)
+        if os.path.isdir(comfy_dir):
+            dirs.append(comfy_dir)
 
     return dirs

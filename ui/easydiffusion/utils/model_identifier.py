@@ -212,6 +212,9 @@ def has_all_keys(header, keys):
 def infer_diffusers_model_type(header):
     s = shape_of
 
+    if "txtfusion.projector.weight" in header or "model.diffusion_model.txtfusion.projector.weight" in header:
+        return "krea2"
+
     if CHECKPOINT_KEY_NAMES["inpainting"] in header and s(header, CHECKPOINT_KEY_NAMES["inpainting"])[1] == 9:
         if CHECKPOINT_KEY_NAMES["v2"] in header and s(header, CHECKPOINT_KEY_NAMES["v2"])[-1] == 1024:
             return "sd_v2_inpainting"

@@ -1948,6 +1948,25 @@ function isChromaModel() {
     return isChroma
 }
 
+function isKrea2Model() {
+    const model = stableDiffusionModelField.value
+    return modelsDB?.["stable-diffusion"]?.[model]?.tags?.includes("krea2") || false
+}
+
+function setKrea2Defaults() {
+    if (backendEngine.value !== "krea2" || !isKrea2Model()) {
+        return
+    }
+    const isRaw = /raw/i.test(stableDiffusionModelField.value)
+    numInferenceStepsField.value = isRaw ? 52 : 8
+    guidanceScaleSlider.min = 10
+    guidanceScaleField.value = isRaw ? 3.5 : 1
+    guidanceScaleSlider.value = parseFloat(guidanceScaleField.value) * 10
+    samplerField.value = "euler"
+    schedulerField.value = "simple"
+}
+sdModelField.addEventListener("change", setKrea2Defaults)
+
 function checkAndSetDependentModels() {
     if (!modelsDB) {
         return
@@ -1999,7 +2018,9 @@ function checkGuidanceValue() {
     let guidance = parseFloat(guidanceScaleField.value)
     let guidanceWarning = document.querySelector("#guidanceWarning")
     let guidanceWarningText = document.querySelector("#guidanceWarningText")
-    if (isFluxModel() || isChromaModel()) {
+    if (isKrea2Model() && backendEngine.value === "krea2") {
+        guidanceWarning.classList.add("displayNone")
+    } else if (isFluxModel() || isChromaModel()) {
         if (guidance > 1.5) {
             guidanceWarningText.innerText = "Flux recommends a 'Guidance Scale' of 1"
             guidanceWarning.classList.remove("displayNone")
