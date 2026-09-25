@@ -1,6 +1,5 @@
 import os
 import json
-import pprint
 import time
 
 from numpy import base_repr
@@ -66,7 +65,6 @@ class FilterTask(Task):
         model_manager.reload_models_if_necessary(context, self.models_data)
         model_manager.fail_if_models_did_not_load(context)
 
-        print_task_info(self.request, self.models_data, self.output_format, self.save_data)
 
         has_nsfw_filter = "nsfw_filter" in self.request.filter
 
@@ -113,17 +111,3 @@ class FilterTask(Task):
         log.info("Filter task completed")
 
         self.response = res
-
-
-def print_task_info(
-    req: FilterImageRequest, models_data: ModelsData, output_format: OutputFormatData, save_data: SaveToDiskData
-):
-    req_str = pprint.pformat({"filter": req.filter, "filter_params": req.filter_params}).replace("[", "\[")
-    models_data = pprint.pformat(models_data.dict()).replace("[", "\[")
-    output_format = pprint.pformat(output_format.dict()).replace("[", "\[")
-    save_data = pprint.pformat(save_data.dict()).replace("[", "\[")
-
-    log.info(f"request: {req_str}")
-    log.info(f"models data: {models_data}")
-    log.info(f"output format: {output_format}")
-    log.info(f"save data: {save_data}")

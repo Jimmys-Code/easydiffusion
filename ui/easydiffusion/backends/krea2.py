@@ -83,7 +83,9 @@ def start_backend():
         _model_paths_file = file.name
     _process = subprocess.Popen(
         [python, "main.py", "--listen", "127.0.0.1", "--port", str(address.port or 8188),
-         "--preview-method", "auto", "--extra-model-paths-config", _model_paths_file], cwd=comfy_dir
+         "--preview-method", "auto", "--disable-all-custom-nodes", "--disable-api-nodes",
+         "--disable-metadata", "--extra-model-paths-config", _model_paths_file], cwd=comfy_dir,
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )
     atexit.register(stop_backend)
 

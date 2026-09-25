@@ -138,12 +138,13 @@ def save_images_to_disk(
 ):
     now = time.time()
     app_config = app.getConfig()
-    folder_format = app_config.get("folder_format", "$id")
+    folder_format = app_config.get("folder_format", "$id").replace("$p", "image")
+    save_data.metadata_output_format = ""
     save_dir_path = os.path.join(save_data.save_to_disk_path, format_folder_name(folder_format, req, task_data))
     metadata_entries = get_metadata_entries_for_request(req, task_data, models_data, output_format, save_data)
     file_number = calculate_img_number(save_dir_path, task_data)
     make_filename = make_filename_callback(
-        app_config.get("filename_format", "$p_$tsb64"),
+        app_config.get("filename_format", "$tsb64").replace("$p", "image"),
         req,
         task_data,
         file_number,

@@ -1,5 +1,4 @@
 import json
-import pprint
 import queue
 import time
 from PIL import Image
@@ -8,7 +7,7 @@ from easydiffusion import model_manager, runtime
 from easydiffusion.types import GenerateImageRequest, ModelsData, OutputFormatData, SaveToDiskData
 from easydiffusion.types import Image as ResponseImage
 from easydiffusion.types import GenerateImageResponse, RenderTaskData
-from easydiffusion.utils import get_printable_request, log, save_images_to_disk, filter_nsfw
+from easydiffusion.utils import log, save_images_to_disk, filter_nsfw
 from sdkit.utils import (
     img_to_base64_str,
     base64_str_to_img,
@@ -116,7 +115,6 @@ def make_images(
     step_callback,
     task,
 ):
-    print_task_info(req, task_data, models_data, output_format, save_data)
 
     images, seeds = make_images_internal(
         context,
@@ -141,26 +139,6 @@ def make_images(
     return res
 
 
-def print_task_info(
-    req: GenerateImageRequest,
-    task_data: RenderTaskData,
-    models_data: ModelsData,
-    output_format: OutputFormatData,
-    save_data: SaveToDiskData,
-):
-    req_str = pprint.pformat(get_printable_request(req, task_data, models_data, output_format, save_data)).replace(
-        "[", "\["
-    )
-    task_str = pprint.pformat(task_data.dict()).replace("[", "\[")
-    models_data = pprint.pformat(models_data.dict()).replace("[", "\[")
-    output_format = pprint.pformat(output_format.dict()).replace("[", "\[")
-    save_data = pprint.pformat(save_data.dict()).replace("[", "\[")
-
-    log.info(f"request: {req_str}")
-    log.info(f"task data: {task_str}")
-    log.info(f"models data: {models_data}")
-    log.info(f"output format: {output_format}")
-    log.info(f"save data: {save_data}")
 
 
 def make_images_internal(
